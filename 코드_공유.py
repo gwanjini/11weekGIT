@@ -17,7 +17,13 @@ wine = load_wine()
 # X, y 데이터를 test size는 0.2, random_state 값은 42로 하여 train 데이터와 test 데이터로 분할합니다.
 
 ''' 코드 작성 바랍니다 '''
+X = pd.DataFrame(wine.data, columns=wine.feature_names)
+y = pd.Series(wine.target)
 
+# train-test 분할 (test size 0.2, random_state 42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, 
+                                                    test_size=0.2, 
+                                                    random_state=42)
 
 ####### A 작업자 작업 수행 #######
 
