@@ -29,52 +29,52 @@ X_train, X_test, y_train, y_test = train_test_split(X, y,
 ####### A 작업자 작업 수행 #######
 
 ''' 코드 작성 바랍니다 '''
-from sklearn.tree import DecisionTreeClassifier
+
+
+
+####### B 작업자 작업 수행 #######
+
+''' 코드 작성 바랍니다 '''
+from xgboost import XGBClassifier
 from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# 1. Decision Tree 모델 생성
-dt_clf = DecisionTreeClassifier(random_state=42)
+# 1. XGBoost 모델 생성 (random_state 고정)
+xgb = XGBClassifier(random_state=42, eval_metric='logloss')
 
 # 2. 하이퍼파라미터 그리드 설정
 params = {
-    'criterion': ['gini', 'entropy'],
-    'max_depth': [2, 5],
-    'min_samples_split': [2, 10],
-    'min_samples_leaf': [1, 2, 4]
+    'max_depth': [3, 5, 7, 9, 15],
+    'learning_rate': [0.1, 0.01, 0.001],
+    'n_estimators': [50, 100, 200, 300]
 }
 
 # 3. GridSearchCV 수행 (cv=5, scoring='accuracy')
-grid_cv = GridSearchCV(dt_clf, param_grid=params, cv=5, scoring='accuracy')
+grid_cv = GridSearchCV(xgb, param_grid=params, cv=5, scoring='accuracy', n_jobs=-1)
 grid_cv.fit(X_train, y_train)
 
 # 4. 최적 파라미터 및 최고 정확도 출력
 print("="*50)
 print("[최적 하이퍼파라미터]")
 print(grid_cv.best_params_)
-print("\n[최고 정확도]")
+print("\n[최고 교차 검증 정확도]")
 print(f"{grid_cv.best_score_:.4f}")
 
 # 5. 최적 모델로 테스트 세트 평가
-best_dt = grid_cv.best_estimator_
-test_acc = best_dt.score(X_test, y_test)
+best_xgb = grid_cv.best_estimator_
+test_acc = best_xgb.score(X_test, y_test)
 print("\n[테스트 세트 정확도]")
 print(f"{test_acc:.4f}")
 
 # 6. Feature Importance 시각화
 plt.figure(figsize=(10, 6))
-importance = pd.Series(best_dt.feature_importances_, index=X_train.columns)
+importance = pd.Series(best_xgb.feature_importances_, index=X_train.columns)
 importance = importance.sort_values(ascending=False)
-sns.barplot(x=importance.values, y=importance.index, palette='Blues_d')
+sns.barplot(x=importance.values, y=importance.index, palette='viridis')
 
-plt.title('Feature Importance of Decision Tree', fontsize=14)
+plt.title('XGBoost Feature Importance', fontsize=14)
 plt.xlabel('Importance Score', fontsize=12)
 plt.ylabel('Features', fontsize=12)
+plt.tight_layout()
 plt.show()
-
-
-####### B 작업자 작업 수행 #######
-
-''' 코드 작성 바랍니다 '''
-
